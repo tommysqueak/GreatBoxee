@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<project default="package">
+
+	<!-- Change this to have the packages created elsewhere eg c:\builds\boxee\ -->
+	<property name="build.dir" value="" />
+	
+	
+	<property name="project.dir" value="..\" 	/>
+	<property name="project.build.dir" value="${build.dir}${project.id}\" dynamic="true"/>
+	<property name="project.package.dir" value="${project.build.dir}Packages\" dynamic="true"/>
+	<property name="project.preparation.dir" value="${project.build.dir}Preparation\" dynamic="true"/>
+
+	<target name="package">
+		<call target="getIds" />
+		<call target="clean" />
+		<call target="ensureDirectories" />
+		<call target="copyToPackaging" />
+		<call target="generateNextVersionNumber" />
+		<call target="packageForBeta" />
+		<call target="packageForProd" />
+	</target>
+
+	<target name="getIds">
+		<xmlpeek file="..\descriptor.xml" xpath="/app/id" property="project.id" />
+		<xmlpeek file="..\descriptor.beta.xml" xpath="/app/id" property="project.beta.id" />
+		<xmlpeek file="..\descriptor.prod.xml" xpath="/app/id" property="project.prod.id" />
+	</target>
+	
+	<target name="clean">
+		<delete dir="${project.preparation.dir}" /> 
+	</target>
+	
+	<target name="ensureDirectories">
+		<mkdir dir="${project.build.dir}" />
+		<mkdir dir="${project.package.dir}" />
+		<mkdir dir="${project.preparation.dir}" />
+	</target>
+	
+	<target name="copyToPackaging">
+		<copy todir="${project.preparation.dir}">
+			<fileset basedir="${project.dir}" >
+				<include name="**/*" />
+				<exclude name="descriptor.xml" />
+				<exclude name="Specifications/**" />
+				<exclude name="Build/**" />
+				<exclude name="nbproject/**" />
+				<exclude name="*.pydevproject" />
+				<exclude name="*.project" />
+				<exclude name="**/*.xcf" />
+				<exclude name="**/Thumbs.db" />
+				<exclude name="**/.svn" />
+				<exclude name="**/.git" />
+				<exclude name="**/.gitignore" />
+			</fileset>
+		</copy>
+	</target>
+
+	<target name="generateNextVersionNumber">
+		<echo file="version.number" message="1.0"  unless="${file::exists('version.number')}" />
+		<loadfile file="version.number" property="version.number.previous" />
+		
+		<property name="revision.number.previous" value="${string::substring(version.number.previous, 2, string::get-length(version.number.previous) - 2)}" />
+		<echo message="previous revision: ${revision.number.previous}"/>
+		
+		<property name="revision.number" value="${int::parse(revision.number.previous) + 1}" />
+		<echo message="new revision: ${revision.number}"/>
+
+		<property name="version.number" value="${string::substring(version.number.previous, 0, 2) + revision.number}" />
+		<echo message="version number: ${version.number}"/>
+		
+		<echo file="version.number" message="${version.number}"/>
+	</target>
+	
+	<target name="packageForBeta">
+		<property name="environment" value="beta" />
+		<property name="package.id" value="${project.beta.id}" />
+		<call target="packageAppFiles" />
+	</target>
+
+	<target name="packageForProd">
+		<property name="environment" value="prod" />
+		<property name="package.id" value="${project.prod.id}" />
+		<call target="packageAppFiles" />
+	</target>
+	
+	<target name="packageAppFiles">
+
+		<move file="${project.preparation.dir}descriptor.${environment}.xml" tofile="${project.preparation.dir}descriptor.xml" />
+
+		<xmlpoke file="${project.preparation.dir}descriptor.xml" xpath="/app/version" value="${version.number}" />
+
+		<!-- TODO: stamp version into app desc or title, so we know client has got new version -->
+		
+		<zip zipfile="${project.package.dir}\${package.id}-${version.number}.zip">
+			<fileset basedir="${project.preparation.dir}" prefix="${package.id}">
+				<include name="**/*" />
+				<exclude name="descriptor.*.xml" />
+			</fileset>
+		</zip>
+
+		<move file="${project.preparation.dir}descriptor.xml" tofile="${project.preparation.dir}descriptor.${environment}.xml" />
+
+	</target>
+	
+</project>

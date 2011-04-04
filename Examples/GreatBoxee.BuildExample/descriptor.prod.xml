@@ -1,0 +1,17 @@
+<app>
+    <id>BuildExample</id>
+    <name>Build Example</name>
+    <version>0.0</version>
+    <description>For testing the build script</description>
+    <thumb>http://dir.greatboxee.com/Apps/GreatBoxee/thumb.png</thumb>
+    <repository>http://dir.boxee.tv/apps</repository>
+    <media>video</media>
+    <author>Great Boxee</author>
+    <copyright>Great Boxee</copyright>
+    <email>tom@greatboxee.com</email>
+    <type>skin</type>
+    <startWindow>14000</startWindow>
+    <platform>all</platform>
+    <minversion>0.9.20</minversion>
+</app>
+

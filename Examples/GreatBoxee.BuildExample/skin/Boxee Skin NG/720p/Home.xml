@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<window type="window" id="14000">
+	<defaultcontrol always="true">200</defaultcontrol>
+	<allowoverlay>yes</allowoverlay>
+	<controls>
+			 
+		<control type="label">
+			<posx>300</posx>
+			<posy>100</posy>
+			<width>255</width>
+			<height>50</height>
+			<label>Yoo hoo</label>
+			<font>font40</font>
+			<align>left</align>
+			<textcolor>white</textcolor>
+		</control>
+	
+	</controls>
+</window>
